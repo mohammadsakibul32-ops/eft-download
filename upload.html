@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#05070e">
+<title>Avatar Uploader — OUR EFOOTBALL TOUR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#05070e;color:#eaf2ff;font-family:'Inter',sans-serif;line-height:1.5;min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased;background-image:radial-gradient(circle at 15% 5%,rgba(34,211,238,.12),transparent 45%),radial-gradient(circle at 85% 95%,rgba(139,92,246,.12),transparent 45%)}
+.wrap{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+.head{text-align:center;margin-bottom:24px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:linear-gradient(135deg,rgba(34,211,238,.12),rgba(139,92,246,.12));border:1px solid rgba(34,211,238,.35);border-radius:999px;font-family:'Oswald',sans-serif;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#22d3ee;margin-bottom:12px}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{font-family:'Oswald',sans-serif;font-size:26px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+h1 .hl{color:#22d3ee}
+.sub{font-size:12.5px;color:#7a8aa8;line-height:1.6;max-width:420px;margin:0 auto}
+.card{background:linear-gradient(160deg,#0c1122,#101731);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:20px;margin-bottom:14px}
+.card h2{font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.drop-zone{border:2px dashed rgba(34,211,238,.35);border-radius:16px;padding:30px 20px;text-align:center;cursor:pointer;transition:.2s;background:rgba(34,211,238,.03)}
+.drop-zone:hover,.drop-zone.drag{border-color:#22d3ee;background:rgba(34,211,238,.08)}
+.drop-zone .icon{font-size:44px;display:block;margin-bottom:10px}
+.drop-zone .t{font-size:14px;font-weight:700;margin-bottom:4px}
+.drop-zone .s{font-size:11.5px;color:#7a8aa8}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border:0;border-radius:12px;font-family:'Oswald',sans-serif;font-size:13.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:.15s;width:100%}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,#22d3ee,#8b5cf6);color:#fff;box-shadow:0 8px 24px rgba(34,211,238,.25)}
+.btn-success{background:linear-gradient(135deg,#22c55e,#16a34a);color:#04120a}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff}
+.btn-ghost{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#eaf2ff}
+.btn-sm{padding:9px 14px;font-size:11.5px;width:auto}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.preview{display:none;text-align:center;margin-top:14px}
+.preview.show{display:block}
+.preview img{max-width:200px;max-height:200px;border-radius:14px;border:2px solid rgba(34,211,238,.35);background:#05070e;object-fit:contain}
+.preview .info{font-size:11px;color:#7a8aa8;margin-top:8px;font-family:monospace}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(60px);background:#151c3a;border:1px solid rgba(255,255,255,.1);padding:13px 20px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:.3s;z-index:9500;max-width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:#22c55e;color:#86efac}
+.toast.err{border-color:#ef4444;color:#fca5a5}
+.alert{padding:11px 14px;border-radius:11px;font-size:12.5px;font-weight:600;margin-bottom:14px;line-height:1.6}
+.alert.info{background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);color:#22d3ee}
+.alert.ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);color:#86efac}
+.alert.warn{background:rgba(252,211,77,.08);border:1px solid rgba(252,211,77,.3);color:#fcd34d}
+.progress{height:5px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;margin-top:10px;display:none}
+.progress.show{display:block}
+.progress>div{height:100%;background:linear-gradient(90deg,#22d3ee,#8b5cf6);border-radius:99px;transition:width .3s;width:0%}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px}
+.av-item{aspect-ratio:1;border-radius:12px;overflow:hidden;border:2px solid rgba(255,255,255,.08);background:#0c1122;position:relative}
+.av-item img{width:100%;height:100%;object-fit:cover}
+.av-item .del{position:absolute;top:2px;right:2px;width:22px;height:22px;border-radius:50%;background:#ef4444;color:#fff;font-size:13px;font-weight:900;display:grid;place-items:center;cursor:pointer;opacity:.9}
+.empty{text-align:center;padding:30px 20px;color:#7a8aa8;font-size:13px;border:1px dashed rgba(255,255,255,.08);border-radius:14px;margin-top:12px}
+.empty .ic{font-size:32px;display:block;margin-bottom:8px;opacity:.4}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{padding:10px 6px;text-align:center;background:rgba(0,0,0,.3);border-radius:10px;border:1px solid rgba(255,255,255,.06)}
+.stat .v{font-family:'Oswald',sans-serif;font-size:16px;font-weight:700;color:#22d3ee}
+.stat .k{font-size:9.5px;color:#7a8aa8;text-transform:uppercase;letter-spacing:.06em;margin-top:3px;font-weight:700}
+.slider{margin-top:14px}
+.slider label{font-size:11px;color:#7a8aa8;font-weight:700;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+.slider input[type=range]{width:100%;accent-color:#22d3ee}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="head">
+    <div class="badge"><span class="dot"></span> FIRESTORE UPLOADER</div>
+    <h1>OUR <span class="hl">EFOOTBALL</span> TOUR</h1>
+    <p class="sub">ছবি select করুন → Firestore এ permanent save হবে → App এ চিরকাল দেখা যাবে।</p>
+  </div>
+
+  <div class="card">
+    <div class="alert ok">
+      🔒 <b>Permanent Storage:</b> ছবি আপনার নিজের Firestore database এ save হবে — কোনো third-party site এ না। কখনো delete হবে না।
+    </div>
+
+    <h2>📤 নতুন Avatar যোগ করুন</h2>
+
+    <div class="drop-zone" id="dropZone">
+      <span class="icon">🖼️</span>
+      <div class="t">ছবি select করতে tap করুন</div>
+      <div class="s">JPG, PNG, WEBP — auto resize হবে</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none">
+
+    <div class="preview" id="preview">
+      <img id="previewImg" src="">
+      <div class="info" id="previewInfo"></div>
+    </div>
+
+    <div class="slider" id="qualityBox" style="display:none">
+      <label>Quality: <span id="qVal">200x200</span></label>
+      <input type="range" id="sizeSlider" min="100" max="400" value="200" step="50">
+    </div>
+
+    <div class="progress" id="progress"><div id="progressBar"></div></div>
+
+    <div id="uploadResult" style="display:none;margin-top:14px">
+      <div class="alert ok">✅ সফলভাবে Firestore এ save হয়েছে!</div>
+      <div class="alert info" id="sizeInfo"></div>
+    </div>
+
+    <button class="btn btn-primary" id="uploadBtn" style="margin-top:14px" disabled onclick="saveToFirestore()">
+      💾 Save to Firestore
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>🖼️ সব Avatar (<span id="totalCount">0</span>)</h2>
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:10px" onclick="loadAvatars()">🔄 Refresh</button>
+    <div class="stats">
+      <div class="stat"><div class="v" id="statTotal">—</div><div class="k">Total</div></div>
+      <div class="stat"><div class="v" id="statActive">—</div><div class="k">Active</div></div>
+      <div class="stat"><div class="v" id="statSize">—</div><div class="k">Approx Size</div></div>
+    </div>
+    <div id="avatarGrid"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBgeeZtY-q5AN7JwuXFF5sBoTM9VU7ono8",
+  authDomain: "tour-20d94.firebaseapp.com",
+  projectId: "tour-20d94",
+  storageBucket: "tour-20d94.firebasestorage.app",
+  messagingSenderId: "1097489681795",
+  appId: "1:1097489681795:web:1ddd4ddf0f5fcd270fbab6"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const FV = firebase.firestore.FieldValue;
+
+let selectedFile = null;
+let resizedDataUrl = null;
+let currentSize = 200;
+
+const $ = id => document.getElementById(id);
+
+function toast(msg, type){
+  const el = $("toast");
+  el.textContent = msg;
+  el.className = "toast show " + (type||"");
+  clearTimeout(window.__tst);
+  window.__tst = setTimeout(()=>el.classList.remove("show"), 3500);
+}
+window.toast = toast;
+
+function formatBytes(b){
+  if(b < 1024) return b + " B";
+  if(b < 1048576) return (b/1024).toFixed(1) + " KB";
+  return (b/1048576).toFixed(2) + " MB";
+}
+
+/* ════════════════════════════════════════════════════════════════
+   IMAGE RESIZE via Canvas
+   ════════════════════════════════════════════════════════════════ */
+function resizeImage(file, maxSize, quality, callback){
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const canvas = document.createElement("canvas");
+      let w = img.width, h = img.height;
+
+      // Calculate dimensions keeping aspect ratio
+      if(w > h){
+        if(w > maxSize){ h = h * (maxSize / w); w = maxSize; }
+      } else {
+        if(h > maxSize){ w = w * (maxSize / h); h = maxSize; }
+      }
+
+      canvas.width = Math.round(w);
+      canvas.height = Math.round(h);
+
+      const ctx = canvas.getContext("2d");
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      // Convert to JPEG (smaller than PNG)
+      const dataUrl = canvas.toDataURL("image/jpeg", quality);
+      callback(dataUrl, canvas.width, canvas.height);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   FILE HANDLING
+   ════════════════════════════════════════════════════════════════ */
+const dropZone = $("dropZone");
+const fileInput = $("fileInput");
+
+dropZone.addEventListener("click", ()=> fileInput.click());
+dropZone.addEventListener("dragover", e=>{ e.preventDefault(); dropZone.classList.add("drag"); });
+dropZone.addEventListener("dragleave", ()=> dropZone.classList.remove("drag"));
+dropZone.addEventListener("drop", e=>{
+  e.preventDefault();
+  dropZone.classList.remove("drag");
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener("change", e=>{
+  if(e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+function handleFile(file){
+  if(!file.type.startsWith("image/")){ toast("শুধু image file দিন", "err"); return; }
+  if(file.size > 10 * 1024 * 1024){ toast("File 10MB এর চেয়ে বড়", "err"); return; }
+
+  selectedFile = file;
+  processImage();
+
+  $("qualityBox").style.display = "block";
+  $("uploadResult").style.display = "none";
+}
+
+function processImage(){
+  if(!selectedFile) return;
+  resizeImage(selectedFile, currentSize, 0.8, (dataUrl, w, h)=>{
+    resizedDataUrl = dataUrl;
+    $("previewImg").src = dataUrl;
+    $("preview").classList.add("show");
+    const sizeBytes = dataUrl.length * 0.75; // approx
+    $("previewInfo").textContent = w + "×" + h + " • ~" + formatBytes(sizeBytes);
+    $("uploadBtn").disabled = false;
+  });
+}
+
+$("sizeSlider").addEventListener("input", e=>{
+  currentSize = Number(e.target.value);
+  $("qVal").textContent = currentSize + "x" + currentSize;
+  if(selectedFile) processImage();
+});
+
+/* ════════════════════════════════════════════════════════════════
+   SAVE TO FIRESTORE
+   ════════════════════════════════════════════════════════════════ */
+async function saveToFirestore(){
+  if(!resizedDataUrl){
+    toast("আগে ছবি select করুন", "err");
+    return;
+  }
+
+  $("uploadBtn").disabled = true;
+  $("uploadBtn").innerHTML = '<span class="spin"></span> Saving…';
+  $("progress").classList.add("show");
+  $("progressBar").style.width = "30%";
+
+  try{
+    const sizeKb = Math.round(resizedDataUrl.length * 0.75 / 1024);
+
+    // Firestore 1MB limit check
+    if(resizedDataUrl.length > 950000){
+      throw new Error("ছবি অনেক বড়। Size slider কমিয়ে আবার try করুন।");
+    }
+
+    $("progressBar").style.width = "60%";
+
+    // Save to Firestore
+    await db.collection("avatars").add({
+      url: resizedDataUrl,
+      imageUrl: resizedDataUrl,
+      image: resizedDataUrl,
+      active: true,
+      source: "firestore-base64",
+      sizeKb: sizeKb,
+      createdAt: FV.serverTimestamp(),
+      uploadedAt: FV.serverTimestamp()
+    });
+
+    $("progressBar").style.width = "100%";
+    $("uploadResult").style.display = "block";
+    $("sizeInfo").textContent = "Size: ~" + sizeKb + " KB • Firestore এ permanent save হয়েছে";
+
+    toast("✅ Save সম্পন্ন! App এ এখনই দেখা যাবে।", "ok");
+
+    setTimeout(()=>{
+      $("uploadBtn").innerHTML = "💾 Save to Firestore";
+      $("uploadBtn").disabled = false;
+      $("progressBar").style.width = "0%";
+      setTimeout(()=>$("progress").classList.remove("show"), 400);
+    }, 800);
+
+    // Reset file
+    selectedFile = null;
+    resizedDataUrl = null;
+    $("preview").classList.remove("show");
+    $("qualityBox").style.display = "none";
+
+    loadAvatars();
+
+  }catch(e){
+    console.error(e);
+    toast("❌ " + e.message, "err");
+    $("uploadBtn").innerHTML = "💾 Save to Firestore";
+    $("uploadBtn").disabled = false;
+    $("progress").classList.remove("show");
+    $("progressBar").style.width = "0%";
+  }
+}
+window.saveToFirestore = saveToFirestore;
+
+/* ════════════════════════════════════════════════════════════════
+   LOAD AVATARS
+   ════════════════════════════════════════════════════════════════ */
+async function loadAvatars(){
+  const grid = $("avatarGrid");
+  grid.innerHTML = '<div class="empty"><span class="spin"></span></div>';
+
+  try{
+    const snap = await db.collection("avatars").limit(500).get();
+    const arr = [];
+    snap.forEach(d=>arr.push({id:d.id, ...d.data()}));
+    arr.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
+
+    $("statTotal").textContent = arr.length;
+    $("statActive").textContent = arr.filter(a => a.active !== false).length;
+
+    const totalKb = arr.reduce((sum, a)=> sum + (a.sizeKb || 30), 0);
+    $("statSize").textContent = totalKb > 1024 ? (totalKb/1024).toFixed(1)+"MB" : totalKb+"KB";
+    $("totalCount").textContent = arr.length;
+
+    if(!arr.length){
+      grid.innerHTML = '<div class="empty"><span class="ic">🎨</span>এখনো কোনো avatar নেই<br>প্রথম ছবি add করুন</div>';
+      return;
+    }
+
+    let h = '<div class="grid">';
+    arr.forEach(a=>{
+      const u = a.url || a.imageUrl || a.image || "";
+      if(!u) return;
+      h += '<div class="av-item">';
+      h += '<img src="'+u+'" loading="lazy" onerror="this.style.opacity=.3">';
+      h += '<div class="del" onclick="deleteAvatar(\''+a.id+'\')">×</div>';
+      h += '</div>';
+    });
+    h += '</div>';
+    grid.innerHTML = h;
+
+  }catch(e){
+    console.error(e);
+    grid.innerHTML = '<div class="empty"><span class="ic">❌</span>Load failed: ' + e.message + '</div>';
+  }
+}
+window.loadAvatars = loadAvatars;
+
+async function deleteAvatar(id){
+  if(!confirm("এই avatar delete করবেন?")) return;
+  try{
+    await db.collection("avatars").doc(id).delete();
+    toast("✅ Deleted", "ok");
+    loadAvatars();
+  }catch(e){
+    toast("Failed: " + e.message, "err");
+  }
+}
+window.deleteAvatar = deleteAvatar;
+
+loadAvatars();
+console.log("✅ Firestore Avatar Uploader ready");
+</script>
+</body>
+                                                                     </html>
