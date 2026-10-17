@@ -7,12 +7,17 @@
 <meta name="google-site-verification" content="sDTSRR87n9p4F-azms1tvgZa3AFKxpa1r3k3UgSNXmo">
 <title>OUR EFOOTBALL TOUR — Download</title>
 
-<!-- Favicon (Browser tab + Google Search এ দেখাবে) -->
+<!-- ক্যাশে সমস্যা এড়াতে মেটা ট্যাগ -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<!-- Favicon -->
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mohammadsakibul32-ops/efootball-tour/main/icon.png">
 <link rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/mohammadsakibul32-ops/efootball-tour/main/icon.png">
 <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/mohammadsakibul32-ops/efootball-tour/main/icon.png">
 
-<!-- Open Graph (WhatsApp, Facebook, Telegram preview) -->
+<!-- Open Graph -->
 <meta property="og:title" content="OUR EFOOTBALL TOUR — Download">
 <meta property="og:description" content="বাংলাদেশের #১ eFootball টুর্নামেন্ট অ্যাপ। এখনই ডাউনলোড করুন!">
 <meta property="og:image" content="https://raw.githubusercontent.com/mohammadsakibul32-ops/efootball-tour/main/icon.png">
@@ -147,7 +152,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
       <span class="dl-icon">📥</span>
       <span class="dl-text">
         <span>অ্যাপ ডাউনলোড করুন</span>
-        <small>v1.0 • 3.6 MB</small>
+        <small>v4 • 3.6 MB</small>
       </span>
     </button>
 
@@ -239,13 +244,14 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 <div id="toast"></div>
 
 <script>
-const APK_URL = "https://github.com/mohammadsakibul32-ops/efootball-tour/releases/latest/download/app-debug.apk";
+// এখানে app-debug.apk এর জায়গায় our-tour.apk করা হয়েছে
+const APK_URL = "https://github.com/mohammadsakibul32-ops/efootball-tour/releases/latest/download/our-tour.apk";
 
 function startDownload(){
   try{
     var a = document.createElement("a");
     a.href = APK_URL;
-    a.download = "OUR-EFOOTBALL-TOUR.apk";
+    a.download = "our-tour.apk"; 
     a.style.display = "none";
     document.body.appendChild(a);
     a.click();
